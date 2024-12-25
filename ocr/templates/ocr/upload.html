@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Image to Text</title>
+    <style>
+      .upload-container {
+        border: 2px dashed #ccc;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        margin-bottom: 20px;
+      }
+      .upload-container.dragover {
+        border-color: #00f;
+        background-color: #f0f8ff;
+      }
+      .upload-container img {
+        max-width: 100%;
+        max-height: 300px;
+        display: none;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Upload or Drag and Drop an Image</h2>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div id="upload-container" class="upload-container">
+        <p>Drag and drop an image here, or click to select one.</p>
+        <input
+          type="file"
+          id="file-input"
+          name="image"
+          accept="image/*"
+          style="display: none"
+          required
+        />
+        <img id="image-preview" alt="Image Preview" />
+      </div>
+      <label for="language">Select Language:</label>
+      <select id="language" name="language">
+        <option value="eng" selected>English</option>
+        <option value="spa">Spanish</option>
+        <option value="fra">French</option>
+        <option value="deu">German</option>
+        <!-- Add more languages as needed -->
+      </select>
+      <button type="submit">Extract Text</button>
+    </form>
+
+    <script>
+      const uploadContainer = document.getElementById("upload-container");
+      const fileInput = document.getElementById("file-input");
+      const imagePreview = document.getElementById("image-preview");
+
+      uploadContainer.addEventListener("click", () => {
+        fileInput.click();
+      });
+
+      uploadContainer.addEventListener("dragover", (event) => {
+        event.preventDefault();
+        uploadContainer.classList.add("dragover");
+      });
+
+      uploadContainer.addEventListener("dragleave", () => {
+        uploadContainer.classList.remove("dragover");
+      });
+
+      uploadContainer.addEventListener("drop", (event) => {
+        event.preventDefault();
+        uploadContainer.classList.remove("dragover");
+        const file = event.dataTransfer.files[0];
+        if (file) {
+          fileInput.files = event.dataTransfer.files;
+          displayImagePreview(file);
+        }
+      });
+
+      fileInput.addEventListener("change", () => {
+        const file = fileInput.files[0];
+        if (file) {
+          displayImagePreview(file);
+        }
+      });
+
+      function displayImagePreview(file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          imagePreview.src = event.target.result;
+          imagePreview.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      }
+    </script>
+  </body>
+</html>
